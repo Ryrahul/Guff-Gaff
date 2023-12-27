@@ -28,21 +28,22 @@ export class ChatWebSocketServer {
       ws.on("message", (message) => {
         if (message.type === "utf8" && typeof message.utf8Data === "string") {
           const data = JSON.parse(message.utf8Data);
-          if (data.name === "setName") {
+          console.log(data.type)
+          if (data.type === "setName") {
             user.userName = data.name;
             console.log(
               `User ${user.userId} set their name to ${user.userName}`,
             );
-          } else if ((data.type = "sendMessage")) {
+          } else if ((data.type === "sendMessage")) {
             const receiver: User | undefined = this.users.get(data.receiverId);
             if (!receiver) {
               user.sendMessage(`User with ${data.receiverId} not found`);
             } else {
               receiver.sendPrivateMessage(receiver, data.message);
+              console.log(`Message sent to ${receiver.userName} by ${user.userName}`)
             }
           }
         }
-        ws.send(JSON.stringify(`you have Received `));
       });
     });
 
