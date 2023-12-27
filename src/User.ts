@@ -1,13 +1,11 @@
 import { connection } from "websocket";
-import { uuid } from "uuidv4";
-
-export class User {
+import {v4 as uuidv4} from 'uuid';export class User {
   public userId: string;
   public userName: string | undefined;
   public connection: connection;
 
   constructor(connection: connection) {
-    this.userId = uuid();
+    this.userId = uuidv4();
     this.userName = undefined;
     this.connection = connection;
   }
