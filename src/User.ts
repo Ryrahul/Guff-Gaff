@@ -14,19 +14,32 @@ export class User {
     
   }
   public sendMessage(message: string) {
+    if(this.connection.connected){
+      console.log("yes is connected")
     this.connection.sendUTF(message);
+    }
+  else{
+    console.log("not connected")
+  }
   }
 
-  public sendPrivateMessage(recipient: User, message: string) {
+  public sendPrivateMessage(sender: User, message: string) {
+    if(this.connection.connected){
+      console.log("yes is connected")
     this.connection.sendUTF(
       JSON.stringify({
         type: "privateMessage",
         data: {
-          senderId: this.userId,
-          senderName: this.userName || "Anonymous",
+          senderId: sender.userId,
+          senderName: sender.userName || "Anonymous",
           message,
         },
       }),
     );
   }
+  else(
+    console.log("Not connected")
+  )
+}
+
 }

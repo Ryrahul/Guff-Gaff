@@ -16,7 +16,7 @@ export class ChatWebSocketServer {
     if (!receiver) {
       user.sendMessage(`User with ${data.receiverId} not found`);
     } else {
-      receiver.sendPrivateMessage(receiver, data.message);
+      receiver.sendPrivateMessage(user, data.message);
       console.log(`Message sent to ${receiver.userName} by ${user.userName}`);
     }
   }
