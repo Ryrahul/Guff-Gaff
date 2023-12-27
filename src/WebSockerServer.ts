@@ -40,6 +40,19 @@ export class ChatWebSocketServer {
   }
   user.rooms.filter((userRoom)=>userRoom!=room)
 }
+private GroupMessage(data:any,user:User){
+  const room=data.room
+  console.log(room)
+  if(this.rooms.has(room)){
+    const RoomUsers=this.rooms.get(room)
+    RoomUsers?.forEach((roomUser)=>{
+      if(roomUser!=user){
+        console.log(`Message sent by ${user.userName} to ${room}:${data.message}`)
+      }
+            console.log(`Group message sent in room ${room} by ${user.userName}`);
+    })
+  }
+}
   constructor() {
     this.httpServer = http.createServer(function (request, response) {
       console.log(new Date() + " Received request for " + request.url);
@@ -70,10 +83,15 @@ export class ChatWebSocketServer {
             case "sendMessage":
               this.SendMessage(data, user);
               break;
-              case "JoinRoom":
-                this.JoinRoom(data,user)
-                case "LeaveRoom":
-                this.LeaveRoom(data,user)
+            case "JoinRoom":
+              this.JoinRoom(data,user)
+              break;
+            case "LeaveRoom":
+              this.LeaveRoom(data,user)
+              break;
+            case "GroupMessage":
+              this.GroupMessage(data,user)
+              break;
           }
         }
       });
