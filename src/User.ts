@@ -4,11 +4,14 @@ export class User {
   public userId: string;
   public userName: string | undefined;
   public connection: connection;
+    public rooms: string[];
 
   constructor(connection: connection) {
     this.userId = uuidv4();
     this.userName = undefined;
     this.connection = connection;
+    this.rooms=[]
+    
   }
   public sendMessage(message: string) {
     this.connection.sendUTF(message);

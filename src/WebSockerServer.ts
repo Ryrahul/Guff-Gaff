@@ -6,8 +6,10 @@ export class ChatWebSocketServer {
   private httpServer: http.Server;
   private wsServer: WebSocketServer;
   private users: Map<string, User>;
+  private rooms: Map<string, Set<User>>;
   private Setname(data: any, user: User) {
-    user.userName = data.name`User ${user.userId} set their name to ${user.userName}`;
+    user.userName=data.name
+    console.log(`User ${user.userId} set their name to ${user.userName}`);
   }
   private SendMessage(data: any, user: User) {
     const receiver: User | undefined = this.users.get(data.receiverId);
@@ -18,6 +20,26 @@ export class ChatWebSocketServer {
       console.log(`Message sent to ${receiver.userName} by ${user.userName}`);
     }
   }
+  private JoinRoom(data:any,user:User){
+    const room=data.room
+    user.rooms.push(room)
+    if(!this.rooms.has(room)){
+      this.rooms.set(room,new Set())
+      console.log(`New Room created with user ${user.userName}`)
+    }
+    else {
+      this.rooms.get(room)?.add(user)
+      console.log(`${user.userName} joined the ${room}`)
+    }
+  }
+  private LeaveRoom(data:any,user:User){
+    const room=data.room
+    if(this.rooms.has(room)){
+      this.rooms.get(room)?.delete(user)
+
+  }
+  user.rooms.filter((userRoom)=>userRoom!=room)
+}
   constructor() {
     this.httpServer = http.createServer(function (request, response) {
       console.log(new Date() + " Received request for " + request.url);
@@ -32,6 +54,7 @@ export class ChatWebSocketServer {
       autoAcceptConnections: true,
     });
     this.users = new Map();
+    this.rooms=new Map()
 
     this.wsServer.on("connect", (ws) => {
       const user = new User(ws);
@@ -44,9 +67,13 @@ export class ChatWebSocketServer {
             case "setName":
               this.Setname(data, user);
               break;
-            case "setMessage":
+            case "sendMessage":
               this.SendMessage(data, user);
               break;
+              case "JoinRoom":
+                this.JoinRoom(data,user)
+                case "LeaveRoom":
+                this.LeaveRoom(data,user)
           }
         }
       });
