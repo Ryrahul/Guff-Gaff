@@ -1,9 +1,11 @@
 import { server as WebSocketServer } from "websocket";
 import http from "http";
+import { User } from "./User";
 
 export class ChatWebSocketServer {
   private httpServer: http.Server;
   private wsServer: WebSocketServer;
+  private users: Map<string, User>;
   constructor() {
     this.httpServer = http.createServer(function (request, response) {
       console.log(new Date() + " Received request for " + request.url);
@@ -17,16 +19,30 @@ export class ChatWebSocketServer {
       httpServer: this.httpServer,
       autoAcceptConnections: true,
     });
+    this.users = new Map();
 
     this.wsServer.on("connect", (ws) => {
-      console.log("A person has connected");
-      ws.on("message", (data) => {
-        console.log(`you received ${data.type === "utf8" && data.utf8Data}`);
-        ws.send(
-          JSON.stringify(
-            `you have Received ${data.type === "utf8" && data.utf8Data}`,
-          ),
-        );
+      const user = new User(ws);
+      this.users.set(user.userId, user);
+      console.log(`A person wiht id ${user.userId} connected`);
+      ws.on("message", (message) => {
+        if (message.type === "utf8" && typeof message.utf8Data === "string") {
+          const data = JSON.parse(message.utf8Data);
+          if (data.name === "setName") {
+            user.userName = data.name;
+            console.log(
+              `User ${user.userId} set their name to ${user.userName}`,
+            );
+          } else if ((data.type = "sendMessage")) {
+            const receiver: User | undefined = this.users.get(data.receiverId);
+            if (!receiver) {
+              user.sendMessage(`User with ${data.receiverId} not found`);
+            } else {
+              receiver.sendPrivateMessage(receiver, data.message);
+            }
+          }
+        }
+        ws.send(JSON.stringify(`you have Received `));
       });
     });
 

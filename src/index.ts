@@ -1,2 +1,2 @@
 import { ChatWebSocketServer } from "./WebSockerServer";
-const ChatServer =new ChatWebSocketServer()
+const ChatServer = new ChatWebSocketServer();
