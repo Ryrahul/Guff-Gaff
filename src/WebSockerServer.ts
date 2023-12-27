@@ -6,6 +6,18 @@ export class ChatWebSocketServer {
   private httpServer: http.Server;
   private wsServer: WebSocketServer;
   private users: Map<string, User>;
+  private Setname(data: any, user: User) {
+    user.userName = data.name`User ${user.userId} set their name to ${user.userName}`;
+  }
+  private SendMessage(data: any, user: User) {
+    const receiver: User | undefined = this.users.get(data.receiverId);
+    if (!receiver) {
+      user.sendMessage(`User with ${data.receiverId} not found`);
+    } else {
+      receiver.sendPrivateMessage(receiver, data.message);
+      console.log(`Message sent to ${receiver.userName} by ${user.userName}`);
+    }
+  }
   constructor() {
     this.httpServer = http.createServer(function (request, response) {
       console.log(new Date() + " Received request for " + request.url);
@@ -28,20 +40,13 @@ export class ChatWebSocketServer {
       ws.on("message", (message) => {
         if (message.type === "utf8" && typeof message.utf8Data === "string") {
           const data = JSON.parse(message.utf8Data);
-          console.log(data.type)
-          if (data.type === "setName") {
-            user.userName = data.name;
-            console.log(
-              `User ${user.userId} set their name to ${user.userName}`,
-            );
-          } else if ((data.type === "sendMessage")) {
-            const receiver: User | undefined = this.users.get(data.receiverId);
-            if (!receiver) {
-              user.sendMessage(`User with ${data.receiverId} not found`);
-            } else {
-              receiver.sendPrivateMessage(receiver, data.message);
-              console.log(`Message sent to ${receiver.userName} by ${user.userName}`)
-            }
+          switch (data.type) {
+            case "setName":
+              this.Setname(data, user);
+              break;
+            case "setMessage":
+              this.SendMessage(data, user);
+              break;
           }
         }
       });

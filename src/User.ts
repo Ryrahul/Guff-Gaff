@@ -1,5 +1,6 @@
 import { connection } from "websocket";
-import {v4 as uuidv4} from 'uuid';export class User {
+import { v4 as uuidv4 } from "uuid";
+export class User {
   public userId: string;
   public userName: string | undefined;
   public connection: connection;
